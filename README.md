@@ -1,2 +1,2 @@
-# HAL_Menu
-Simple Menu for STM32F407 using HAL
+# 基于HAL库的STM32简单菜单
+采用按键中断实现菜单功能。
