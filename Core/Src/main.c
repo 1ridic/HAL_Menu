@@ -26,6 +26,13 @@
 #include "ssd1306_tests.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "menu.h"
+
+#define OK GPIO_PIN_15
+#define RIGHT GPIO_PIN_14
+#define LEFT GPIO_PIN_13
+#define UP GPIO_PIN_11
+#define DOWN GPIO_PIN_12
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,14 +41,8 @@ int t=0;
 char text3[20];
 char* text= "ok";
 extern SSD1306_t SSD1306;
-
-struct menu
-{
-	int location;
-	int select;
-	int enterflag;
-};
-struct menu menu={0};
+float P=0.0,I=0.0,D=0.0;
+MenuTypedef menu={0};
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -79,122 +80,141 @@ static void MX_SPI3_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint8_t UART_BUF[12] = "Testing!\n";
+//uint8_t UART_BUF[12] = "Testing!\n";
 
-void init()
-{
-    HAL_UART_Transmit(&huart1, UART_BUF, 12, 0xffff);
-    ssd1306_Init();
-//    ssd1306_TestAll();
-}
+//void init()
+//{
+//    HAL_UART_Transmit(&huart1, UART_BUF, 12, 0xffff);
+//    ssd1306_Init();
+////    ssd1306_TestAll();
+//}
 
-void loop()
-{
-    // Button pressed - repeast the test
-//    if (HAL_GPIO_ReadPin(KEY_OK_GPIO_Port, KEY_OK_Pin) == GPIO_PIN_RESET)
-    {
-        HAL_UART_Transmit(&huart1, UART_BUF, 12, 0xffff);
-        ssd1306_TestAll();
-    }
-}
+//void loop()
+//{
+//    // Button pressed - repeast the test
+////    if (HAL_GPIO_ReadPin(KEY_OK_GPIO_Port, KEY_OK_Pin) == GPIO_PIN_RESET)
+//    {
+//        HAL_UART_Transmit(&huart1, UART_BUF, 12, 0xffff);
+//        ssd1306_TestAll();
+//    }
+//}
 
 
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {	
+	
+	#define MENU_1_MAX 6 
 	HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_12);
-	char* line1;
-	char* line2;
-	char* line3;
-	char* line4;
+
 //	line1="Please Select";
 //	line2="Using Up and Down";
 //	line3="MODE 1";
 //	line4="MODE 2";
 	
-	if(GPIO_Pin==GPIO_PIN_15)
-	{
-		menu.enterflag=1;
-		if(menu.select)
-			menu.select=0;
-		if(menu.location)
+	if(GPIO_Pin==OK)
+		switch (menu.depth)
 		{
-			menu.select=menu.location;
-			menu.location=0;
-		}
-	}
+			case 0:
+			menu.depth++;
+			menu.tag=1;
+			break;
 	
-	
-	if(menu.select==0)
-	{
-	line1="Please Select";
-	line2="Using Up and Down";
-	line3="MODE 1";
-	line4="MODE 2";
-			
-	ClearScreen();
-	AddScreen(line1,0,0);
-	AddScreen(line2,0,12);
-	AddScreen(line3,0,30);
-	AddScreen(line4,0,50);
+			case 1:
+			menu.pselect=menu.select;
+			menu.ptag=menu.tag;
+			menu.select=menu.tag;
+			menu.depth++;
+			menu.tag=1;
+			break;
 		
-	}
-	
-	
-	
-	if(GPIO_Pin==GPIO_PIN_11)
-	{
-		
-		AddScreen(line1,0,0);
-		AddScreen(line2,0,12);
-		AddScreen(line3,0,30);
-		AddScreen(line4,0,50);
-//	TurnColor(30,40);
-		AddScreenR(line3,0,30);
-		menu.location=1;
-	}
-	if(GPIO_Pin==GPIO_PIN_12)
-	{
-
-		AddScreen(line1,0,0);
-		AddScreen(line2,0,12);
-		AddScreen(line3,0,30);
-		AddScreen(line4,0,50);
-//	TurnColor(50,60);
-		AddScreenR(line4,0,50);
-		menu.location=2;
+			case 2:
+			menu.select=menu.pselect;
+			menu.tag=menu.ptag;
+			menu.depth--;
+			break;		
 		}
 	
-	
-	if(menu.select==1)
-	{
-	char* line1="You Choose";
-	char* line2="       MODE 1 !";
-	char* line3="Tap OK";
-	char* line4="To Return";
-			
-	ClearScreen();
-	AddScreen(line1,0,0);
-	AddScreen(line2,0,12);
-	AddScreen(line3,0,30);
-	AddScreen(line4,0,50);
-	}
-		if(menu.select==2)
-	{
+	if(GPIO_Pin==UP)
+		switch (menu.depth)
+		{
+			case 1:
+			menu.tag=menu.tag-1;
+			if((menu.tag<=0)||(menu.tag>MENU_1_MAX))
+				menu.tag=1;
+			break;
+			case 2:
+				switch (menu.select)
+				{
+					case 1:
+					P++;
+					break;
+					
+					case 2:
+					I=I+0.1;
+					break;
+					
+					case 3:
+					D++;
+					break;
+				}
+		}
+	if(GPIO_Pin==DOWN)
+		switch (menu.depth)
+		{
+			case 1:
+			menu.tag=menu.tag+1;
+			if((menu.tag<=0)||(menu.tag>MENU_1_MAX))
+				menu.tag=1;
+			break;
+			case 2:
+			switch (menu.select)
+				{
+					case 1:
+					P--;
+					break;
+					
+					case 2:
+					I=I-0.1;
+					break;
+					
+					case 3:
+					D--;
+					break;
+				}
+			break;
+		}
+//if(GPIO_Pin==LEFT)
+//		switch (menu.depth)
+//		{
+//			case 1:
+//			menu.tag=menu.tag-1;
+//			if((menu.tag<=0)&&(menu.tag>=5))
+//				menu.tag=1;
+//			break;
+//			case 2:
+//			menu.tag=menu.tag-1;
+//			if((menu.tag<=0)&&(menu.tag>=5))
+//				menu.tag=1;
+//			break;
+//		}
+//if(GPIO_Pin==RIGHT)
+//		switch (menu.depth)
+//		{
+//			case 1:
+//			menu.tag=menu.tag+1;
+//			if((menu.tag<=0)&&(menu.tag>=MENU_1_MAX))
+//				menu.tag=1;
+//			break;
+//			case 2:
+//			menu.tag=menu.tag+1;
+//			if((menu.tag<=0)&&(menu.tag>=4))
+//				menu.tag=1;
+//			break;
+//		}
 		
-		
-	char* line1="You Choose";
-	char* line2="       MODE 2 !";
-	char* line3="Tap OK";
-	char* line4="To Return";
-			
-	ClearScreen();
-	AddScreen(line1,0,0);
-	AddScreen(text3,0,12);
-	AddScreen(line3,0,30);
-	AddScreen(line4,0,50);
-	}
 	
+	RenewMenu(menu.depth,menu.select,menu.tag);
 
 }
 
@@ -239,7 +259,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  init();
+	ssd1306_Init();
 	text = "Press OK to change.";
 	AddScreen(text,0,0);
 	text = "mode.";
@@ -494,7 +514,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : up_Pin down_Pin ok_Pin */
   GPIO_InitStruct.Pin = up_Pin|down_Pin|ok_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : KEY_LF_Pin KEY_RT_Pin KEY1_Pin KEY2_Pin */
