@@ -3,10 +3,16 @@
 #include "menu.h"
 
 //#define DebugMode
+//调试模式:在屏幕打印菜单层级,屏幕更新LED灯闪烁
 
 
-extern float P,I,D;
-//extern int flag;
+MenuTypedef menu={0}; //定义菜单结构体类型变量
+
+
+float P=0.0,I=0.0,D=0.0;
+
+
+
 char cP[10],cI[10],cD[10];
 char* line1;
 char* line2;
@@ -22,8 +28,6 @@ void RenewMenu(int depth,int select,int tag)
 {
 
 
-//	if(flag==0)
-//	{
 		ClearScreen();
 		switch (depth)
 		{
@@ -180,5 +184,118 @@ void RenewMenu(int depth,int select,int tag)
 		AddScreen(a,50,50);
 		#endif
 
-//	}
+
 }		
+
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{	
+			
+//	 HAL_Delay(50);
+//	
+//    if(HAL_GPIO_ReadPin(GPIOD,GPIO_Pin))
+//    {
+//	HAL_GPIO_TogglePin(GPIOD,GPIO_Pin);
+//	HAL_Delay(100);
+//    }
+
+//		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_Pin);
+//		HAL_Delay(100);
+//		另一种防抖方法，根据具体情况决定是否使用
+	
+	#define MENU_1_MAX 6 //某一级菜单的选项个数
+	
+	#ifdef DebugMode
+	HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_12);
+	#endif
+	
+	//关于菜单的判断
+	switch (GPIO_Pin)
+	{
+		case OK:
+		switch (menu.depth)
+		{
+			case 0:
+			menu.depth++;
+			menu.tag=1;
+			break;
+	
+			case 1:
+			menu.pselect=menu.select;
+			menu.ptag=menu.tag;
+			menu.select=menu.tag;
+			menu.depth++;
+			menu.tag=1;
+			break;
+		
+			case 2:
+			menu.select=menu.pselect;
+			menu.tag=menu.ptag;
+			menu.depth--;
+			break;		
+		}
+		break;
+	
+		case UP:
+		switch (menu.depth)
+		{
+			case 1:
+			menu.tag=menu.tag-1;
+			if((menu.tag<=0)||(menu.tag>MENU_1_MAX))
+				menu.tag=1;
+			break;
+			case 2:
+				switch (menu.select)
+				{
+					case 1:
+					P++;
+					break;
+					
+					case 2:
+					I=I+0.1;
+					break;
+					
+					case 3:
+					D++;
+					break;
+				}
+		}
+		break;
+		
+		case DOWN:
+		switch (menu.depth)
+		{
+			case 1:
+			menu.tag=menu.tag+1;
+			if((menu.tag<=0)||(menu.tag>MENU_1_MAX))
+				menu.tag=1;
+			break;
+			case 2:
+			switch (menu.select)
+				{
+					case 1:
+					P--;
+					break;
+					
+					case 2:
+					I=I-0.1;
+					break;
+					
+					case 3:
+					D--;
+					break;
+				}
+			break;
+		}
+		break;
+	}
+
+	RenewMenu(menu.depth,menu.select,menu.tag);
+		
+		HAL_Delay(160);
+		
+	//在HAL_GPIO_EXTI_IRQHandler()中注释清除标志位并在此添加，防止多次进入中断
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_Pin);
+		
+
+}

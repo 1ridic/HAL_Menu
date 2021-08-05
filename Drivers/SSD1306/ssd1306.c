@@ -515,76 +515,26 @@ uint8_t ssd1306_GetDisplayOn()
 }
 
 
-
-
-int JudgeButton(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
-{
-	if(!HAL_GPIO_ReadPin(GPIOx,GPIO_Pin))
-	{
-		HAL_Delay(100);
-		if(!HAL_GPIO_ReadPin(GPIOx,GPIO_Pin))
-		{
-			while(!HAL_GPIO_ReadPin(GPIOx,GPIO_Pin));
-			return 1;
-		}
-	}
-	return 0;
-}
-
-void TurnColor(int y1,int y2)
-{	
-//	for(int i=x1;i<=x2;i++)
-//		for(int j=y1;j<=y2;j++)
-//			{
-//			ssd1306_DrawPixel(i, j, White);
-//			ssd1306_UpdateScreen();
-//			}
-for(int j=y1;j<=y2;j++)
-	ssd1306_Line(0,y1,127,y2,White);
-}
-
+//在菜单中添加文字
 void AddScreen(char* text,int x,int y)
 {
-//	unsigned int lenth;
-//	lenth =sizeof(text)*7;
-//	if(lenth <= 128)
-//	{
+
 		ssd1306_SetCursor(x,y);
 		ssd1306_WriteString(text,Font_7x10,White);
 		ssd1306_UpdateScreen();
-//	}
-//	else
-//	{
-//		char* text2;
-//		for(int j=0,i=19;i<=lenth;i=i+7,j++)
-//			text2[j]=text[i];
-//		SSD1306.CurrentX = 0;
-//		SSD1306.CurrentY = SSD1306.CurrentY + 10;
-//		AddScreen(text2,SSD1306.CurrentX,SSD1306.CurrentY);
-//	}
+
 }
+
+//在菜单中添加反色文字
 void AddScreenR(char* text,int x,int y)
 {
-//	unsigned int lenth;
-//	lenth =sizeof(text)*7;
-//	if(lenth <= 128)
-//	{
+
 		ssd1306_SetCursor(x,y);
 		ssd1306_WriteString(text,Font_7x10,Black);
 		ssd1306_UpdateScreen();
-		HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_13);
-//	}
-//	else
-//	{
-//		char* text2;
-//		for(int j=0,i=19;i<=lenth;i=i+7,j++)
-//			text2[j]=text[i];
-//		SSD1306.CurrentX = 0;
-//		SSD1306.CurrentY = SSD1306.CurrentY + 10;
-//		AddScreen(text2,SSD1306.CurrentX,SSD1306.CurrentY);
-//	}
-}
 
+}
+//清屏
 void ClearScreen(void)
 {
 	ssd1306_SetCursor(0,0);
