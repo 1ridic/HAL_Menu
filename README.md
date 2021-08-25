@@ -1,2 +1,5 @@
-# 基于HAL库的STM32简单菜单
-采用按键中断实现菜单功能，附带0.96 OLED驱动。
+# 此项目地址
+
+<https://github.com/iridiumR/HAL_Menu>
+
+基于HAL库的STM32F407简易菜单

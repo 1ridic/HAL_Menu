@@ -180,4 +180,3 @@ void ClearScreen(void);
 void AddScreenR(char* text,int x,int y);
 void AddScreen(char* text,int x,int y);
 void TurnColor(int y1,int y2);
-int JudgeButton(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);

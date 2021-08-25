@@ -22,12 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include "ssd1306.h"
-#include "ssd1306_tests.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include "menu.h"
-
 
 /* USER CODE END Includes */
 
@@ -118,9 +117,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	ssd1306_Init();
 	
-	AddScreen("Press OK to change.",0,0);
-
-	AddScreen("mode.",0,10);
+	RenewMenu(0,0,0);
 
   while (1)
   {
