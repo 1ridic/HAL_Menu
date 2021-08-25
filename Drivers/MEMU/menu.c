@@ -1,19 +1,37 @@
+/**
+  ******************************************************************************
+  * @file			menu.c
+  * @brief		存放菜单刷新函数与中断回调函数
+  * @version	V0.3
+  * @date			2021年8月19日
+  ******************************************************************************
+  * @attention		使用方法 在主函数中引用此文件 
+	*								注意使用STM32CubeMX重新生成后
+	*								要在HAL_GPIO_EXTI_IRQHandler()中注释清除标志位
+	*								防止多次进入中断
+  ******************************************************************************
+  */
+
 #include "ssd1306.h"
 #include <stdio.h>
 #include "menu.h"
 
 //#define DebugMode
-//调试模式:在屏幕打印菜单层级,屏幕更新LED灯闪烁
 
+/*调试模式:在屏幕打印菜单层级
+并在屏幕更新时闪烁LED灯
+在需要时取消注释
+*/
 
-MenuTypedef menu={0}; //定义菜单结构体类型变量
+MenuTypedef menu={0}; 
+//声明菜单结构体类型变量
 
 
 float P=0.0,I=0.0,D=0.0;
-
-
-
 char cP[10],cI[10],cD[10];
+//PID调参显示所需的变量
+
+
 char* line1;
 char* line2;
 char* line3;
@@ -23,6 +41,9 @@ char* line6;
 char* line7;
 char* line8;
 char* line9;
+//用于装填需要显示的内容
+
+
 
 void RenewMenu(int depth,int select,int tag)
 {
@@ -248,15 +269,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 				switch (menu.select)
 				{
 					case 1:
-					P++;
+					P=P+1.0f;
 					break;
 					
 					case 2:
-					I=I+0.1;
+					I=I+0.1f;
 					break;
 					
 					case 3:
-					D++;
+					D=D+10.0f;
 					break;
 				}
 		}
@@ -274,15 +295,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			switch (menu.select)
 				{
 					case 1:
-					P--;
+					P=P-1.0f;
 					break;
 					
 					case 2:
-					I=I-0.1;
+					I=I-0.1f;
 					break;
 					
 					case 3:
-					D--;
+					D=D-10.0f;
 					break;
 				}
 			break;
@@ -292,10 +313,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 	RenewMenu(menu.depth,menu.select,menu.tag);
 		
-		HAL_Delay(160);
-		
+	HAL_Delay(150);
+	
 	//在HAL_GPIO_EXTI_IRQHandler()中注释清除标志位并在此添加，防止多次进入中断
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_Pin);
 		
-
 }
