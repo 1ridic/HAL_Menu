@@ -548,6 +548,11 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\MEMU\menu.c</FilePath>
             </File>
+            <File>
+              <FileName>screen.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\MEMU\screen.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

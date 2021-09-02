@@ -15,6 +15,8 @@
 #ifndef _menu_h_
 #define _munu_h_
 
+#include "screen.h"
+
 #define OK GPIO_PIN_15
 #define RIGHT GPIO_PIN_14
 #define LEFT GPIO_PIN_13
@@ -52,5 +54,7 @@ typedef struct
 	//上一层级菜单标志位
 	int pselect;
 	int ptag;
+	
+	
 	
 } MenuTypedef;

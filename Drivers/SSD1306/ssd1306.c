@@ -513,31 +513,3 @@ uint8_t ssd1306_GetDisplayOn()
 {
     return SSD1306.DisplayOn;
 }
-
-
-//在菜单中添加文字
-void AddScreen(char* text,int x,int y)
-{
-
-		ssd1306_SetCursor(x,y);
-		ssd1306_WriteString(text,Font_7x10,White);
-		ssd1306_UpdateScreen();
-
-}
-
-//在菜单中添加反色文字
-void AddScreenR(char* text,int x,int y)
-{
-
-		ssd1306_SetCursor(x,y);
-		ssd1306_WriteString(text,Font_7x10,Black);
-		ssd1306_UpdateScreen();
-
-}
-//清屏
-void ClearScreen(void)
-{
-	ssd1306_SetCursor(0,0);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-}
